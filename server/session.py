@@ -20,28 +20,28 @@ class AgentEntry:
 
 class SessionRegistry:
     def __init__(self):
-        self._by_uuid: Dict[str, AgentEntry] = {}
+        self._by_id: Dict[str, AgentEntry] = {}
         self._lock = threading.Lock()
 
     def add(self, entry: AgentEntry) -> None:
         with self._lock:
-            self._by_uuid[entry.info.uuid] = entry
+            self._by_id[entry.info.uuid] = entry
 
     def remove(self, uuid: str) -> None:
         with self._lock:
-            self._by_uuid.pop(uuid, None)
+            self._by_id.pop(uuid, None)
 
     def list(self) -> Dict[str, AgentEntry]:
         with self._lock:
-            return dict(self._by_uuid)
+            return dict(self._by_id)
 
     def get(self, uuid: str) -> Optional[AgentEntry]:
         with self._lock:
-            return self._by_uuid.get(uuid)
+            return self._by_id.get(uuid)
 
     def get_by_short_prefix(self, prefix: str) -> Optional[AgentEntry]:
         with self._lock:
-            for e in self._by_uuid.values():
+            for e in self._by_id.values():
                 if e.short.startswith(prefix):
                     return e
             return None

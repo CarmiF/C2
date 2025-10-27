@@ -30,7 +30,11 @@ def handle_client(conn: socket.socket, addr):
     p = msg.get("payload", {})
 
     # Fill agent info
-    agent_uuid = p.get("uuid") or str(_uuid.uuid4())
+    i = 0
+    while str(i) in registry._by_id:
+        i += 1
+
+    agent_uuid = str(i) 
     info = AgentInfo(
         uuid=agent_uuid,
         addr=f"{addr[0]}:{addr[1]}",
@@ -99,7 +103,7 @@ def start_server(host=HOST, port=PORT):
 
             if cmd == "help":
                 cli.print_help()
-            elif cmd == "sessions":
+            elif cmd == "list":
                 cli.list_agents()
             elif cmd == "select":
                 if not arg:
