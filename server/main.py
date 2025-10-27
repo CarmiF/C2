@@ -99,7 +99,7 @@ def start_server(host=HOST, port=PORT):
 
             if cmd == "help":
                 cli.print_help()
-            elif cmd == "list":
+            elif cmd == "sessions":
                 cli.list_agents()
             elif cmd == "select":
                 if not arg:

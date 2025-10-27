@@ -33,7 +33,7 @@ class CLI:
         print(f"{'ShortID':10} {'Addr':22} {'Hostname':20} {'OS':15} {'User':15} {'Priv':7} {'PID':6} {'Connected'}")
         for a in agents:
             info = a.info.summary()
-            print(f"{a.short:10} {info['addr']:22} {str(info['hostname']):20} {str(info['os']):15} {str(info['username']):15} {str(info['privilege']):7} {str(info['pid']):6} {info['connected_at']}")
+            print(f"{a.short:10} {info['addr']:22} {str(info['hostname'])[0:19]:20} {str(info['os'])[0:14]:15} {str(info['username']):15} {str(info['privilege']):7} {str(info['pid']):6} {info['connected_at']}")
 
     def select_agent(self, short_prefix: str):
         a = self.reg.get_by_short_prefix(short_prefix)
