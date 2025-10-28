@@ -1,4 +1,4 @@
-# C2 — Minimal Command and Control (client/server)
+# C2: Minimal Client/Server Command & Control System
 
 A minimal, educational Command-and-Control (C2) example implemented in Python. The repository contains a small TCP JSON protocol, a server that maintains an in-memory agent registry and a simple REPL, and an agent that performs a handshake and executes commands on request.
 
