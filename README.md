@@ -5,13 +5,9 @@ A minimal, educational Command-and-Control (C2) example implemented in Python. T
 ## Setup Instructions
 
 1. Ensure Python 3.10 or newer is installed.
-2. Create and activate a virtual environment (recommended):
-   ```bash
-   python -m venv .venv
-   source .venv/bin/activate   # on Windows: .venv\Scripts\activate
-   pip install --upgrade pip
-   ```
-3. Install any required packages (this project uses only the Python standard library).
+2. Clone the repository into a new, dedicated folder.
+3. Navigate into the newly cloned repository folder.
+4.Move one level up to the directory that contains the repository folder.
 
 ## Instructions for Running the Server and Client
 
