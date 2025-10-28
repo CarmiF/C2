@@ -1,7 +1,6 @@
 
 import socket
 import time
-import id as _id
 from c2.server.transport import send_message, recv_message
 from c2.agent.protocol import make_handshake
 from c2.agent.sysinfo import collect
