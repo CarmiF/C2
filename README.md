@@ -4,13 +4,13 @@ A minimal, educational Command-and-Control (C2) example implemented in Python. T
 
 ## Setup Instructions
 
-1. Ensure Python 3.10 or newer is installed.
-2. Clone the repository into a new, dedicated folder.
-3. Navigate into the newly cloned repository folder 
+- Ensure Python 3.10 or newer is installed.-
+- Clone the repository into a new, dedicated folder.
 
 ## Instructions for Running the Server and Client
 
-Move one level up to the directory that contains the repository folder.
+- Navigate into the newly cloned repository folder 
+- Move one level up to the directory that contains the repository folder.
 
 ### Run the server
 Open a terminal and run:
