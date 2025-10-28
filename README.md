@@ -1,4 +1,4 @@
-# c2 — Minimal C2 (client/server)
+# C2 — Minimal C2 (client/server)
 
 A minimal, educational Command-and-Control (C2) example implemented in Python. The repository contains a small TCP JSON protocol, a server that maintains an in-memory agent registry and a simple REPL, and an agent that performs a handshake and executes commands on request.
 
@@ -6,13 +6,19 @@ A minimal, educational Command-and-Control (C2) example implemented in Python. T
 
 1. Ensure Python 3.10 or newer is installed.
 2. Clone the repository into a new, dedicated folder.
-3. Navigate into the newly cloned repository folder.
-4.Move one level up to the directory that contains the repository folder.
+3. Navigate into the newly cloned repository folder 
+4. Move one level up to the directory that contains the repository folder.
 
 ## Instructions for Running the Server and Client
 
 ### Run the server
 Open a terminal and run:
+
+Windows: 
+```bash
+python -m c2.server.main
+```
+Linux:
 ```bash
 python3 -m c2.server.main
 ```
@@ -23,6 +29,12 @@ The server listens on `0.0.0.0:9001` by default. Use the REPL to issue commands:
 
 ### Run the agent (client)
 Open a second terminal and run the agent, pointing it at the server IP and port:
+
+Windows: 
+```bash
+python -m c2.agent.main --host 127.0.0.1 --port 9001
+```
+Linux:
 ```bash
 python3 -m c2.agent.main --host 127.0.0.1 --port 9001
 ```
@@ -63,6 +75,3 @@ This repository focuses on the minimal, vital functionality. Optional or conveni
 - `c2/agent/executor.py` — command execution helper
 - `c2/agent/sysinfo.py` — system information collector used in handshake
 
-## License
-
-MIT License — see `LICENSE` file for details.
