@@ -1,66 +1,72 @@
+# c2 — Minimal C2 (client/server)
 
-# Python C2 (Levels 1–3)
+A minimal, educational Command-and-Control (C2) example implemented in Python. The repository contains a small TCP JSON protocol, a server that maintains an in-memory agent registry and a simple REPL, and an agent that performs a handshake and executes commands on request.
 
-Lightweight, legal C2 infrastructure for red-team interview demos.
+## Setup Instructions
 
-## Features
-- TCP outbound agent connections
-- Interactive terminal CLI
-- Multiple agents, session management
-- Remote command execution (stdout, stderr, exit code)
-- Server and client logging
-- JSON messages with 4-byte length prefix
+1. Ensure Python 3.10 or newer is installed.
+2. Create and activate a virtual environment (recommended):
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate   # on Windows: .venv\Scripts\activate
+   pip install --upgrade pip
+   ```
+3. Install any required packages (this project uses only the Python standard library).
 
-## Project Structure
-```
-c2/
-├─ server/
-│  ├─ main.py
-│  ├─ cli.py
-│  ├─ session.py
-│  ├─ handlers.py
-│  ├─ protocol.py
-│  ├─ transport.py
-│  ├─ logging_conf.py
-│  └─ config.py
-├─ common/
-│  ├─ models.py
-│  ├─ errors.py
-│  └─ utils.py
-├─ agent/
-│  ├─ main.py
-│  ├─ sysinfo.py
-│  ├─ executor.py
-│  └─ protocol.py
-└─ tests/
-```
+## Instructions for Running the Server and Client
 
-## Quickstart
-
-Open two terminals from the project root:
-
-### 1) Run the server
+### Run the server
+Open a terminal and run:
 ```bash
-python3 -m c2.server.main
+python -m c2.server.main
 ```
-The server listens on `0.0.0.0:9001` by default.
+The server listens on `0.0.0.0:9001` by default. Use the REPL to issue commands:
+- `list` — list connected agents
+- `exec <agent_id> <command>` — request agent to execute `<command>`
+- `quit` — stop the server REPL (the server thread will terminate on process exit)
 
-### 2) Run the agent (same machine, for demo)
-Edit `c2/agent/main.py` to point `SERVER_HOST` to the server IP if needed, then:
+### Run the agent (client)
+Open a second terminal and run the agent, pointing it at the server IP and port:
 ```bash
-python3 -m c2.agent.main
+python -m c2.agent.main --host 127.0.0.1 --port 9001
 ```
+Replace `127.0.0.1` and `9001` with the server address and port used in your environment.
 
-### CLI usage
-- `list`
-- `use <short_id>`
-- `send <command>`
-- `broadcast <command>`
-- `read <short_id>`
-- `logs [n]`
-- `quit`
+## Description of the Protocol
 
-## Notes
-- Use in authorized environments only.
-- No TLS in this phase; add later if needed.
-- Tested with Python 3.10+.
+Messages are JSON objects sent over TCP using a 4-byte big-endian length prefix (unsigned int) framing. The top-level JSON object must be a mapping with at least a `type` key.
+
+Defined message types:
+- `handshake` — sent by agent to server immediately after connection.
+  - payload: agent metadata (fields include `id`, `addr`, `hostname`, `os`, `username`, `privilege`, `pid`)
+- `exec` — sent by server to agent to request execution.
+  - payload: `{ "cmd": "<shell command>" }`
+- `exec_result` — sent by agent to server as a response to `exec`.
+  - payload: `{ "stdout": "<stdout str>", "stderr": "<stderr str>", "code": <int> }`
+
+Length-prefix framing ensures that message boundaries are preserved regardless of TCP segmentation. The repository implements `send_message(sock, obj)` and `recv_message(sock)` helpers in `c2/server/transport.py`.
+
+Security note: This implementation is intentionally minimal and lacks authentication, encryption, and hardening. Do not deploy on untrusted networks without adding TLS, strong authentication, and process isolation.
+
+## Overview of Optional Features Implemented
+
+This repository focuses on the minimal, vital functionality. Optional or convenience features implemented:
+
+- Simple REPL on the server to list agents and send `exec` commands.
+- Length-prefixed JSON framing for robust message boundaries.
+- Minimal in-memory `SessionRegistry` to manage connected agents.
+- Stable agent identifier generated per connection (UUID).
+
+## Files of interest
+
+- `c2/server/main.py` — server entrypoint and REPL
+- `c2/server/transport.py` — framing and JSON send/receive helpers
+- `c2/server/protocol.py` — message constructors and type predicates
+- `c2/server/session.py` — in-memory registry of agents
+- `c2/agent/main.py` — agent entrypoint and main loop
+- `c2/agent/executor.py` — command execution helper
+- `c2/agent/sysinfo.py` — system information collector used in handshake
+
+## License
+
+MIT License — see `LICENSE` file for details.
