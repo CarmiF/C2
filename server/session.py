@@ -16,7 +16,7 @@ class AgentEntry:
 
     @property
     def short(self) -> str:
-        return short_id(self.info.uuid)
+        return short_id(self.info.id)
 
 class SessionRegistry:
     def __init__(self):
@@ -25,19 +25,19 @@ class SessionRegistry:
 
     def add(self, entry: AgentEntry) -> None:
         with self._lock:
-            self._by_id[entry.info.uuid] = entry
+            self._by_id[entry.info.id] = entry
 
-    def remove(self, uuid: str) -> None:
+    def remove(self, id: str) -> None:
         with self._lock:
-            self._by_id.pop(uuid, None)
+            self._by_id.pop(id, None)
 
     def list(self) -> Dict[str, AgentEntry]:
         with self._lock:
             return dict(self._by_id)
 
-    def get(self, uuid: str) -> Optional[AgentEntry]:
+    def get(self, id: str) -> Optional[AgentEntry]:
         with self._lock:
-            return self._by_id.get(uuid)
+            return self._by_id.get(id)
 
     def get_by_short_prefix(self, prefix: str) -> Optional[AgentEntry]:
         with self._lock:

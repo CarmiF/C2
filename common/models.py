@@ -5,7 +5,7 @@ import datetime
 
 @dataclass
 class AgentInfo:
-    uuid: str
+    id: str
     addr: str
     hostname: Optional[str]
     os: Optional[str]
@@ -16,7 +16,7 @@ class AgentInfo:
 
     def summary(self) -> Dict[str, Any]:
         return {
-            "uuid": self.uuid,
+            "id": self.id,
             "addr": self.addr,
             "hostname": self.hostname,
             "os": self.os,

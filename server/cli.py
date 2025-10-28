@@ -10,7 +10,7 @@ class CLI:
         self.reg = registry
         self.logger = logger
         self.log_file = log_file
-        self.selected_uuid = None
+        self.selected_id = None
         self.running = True
 
     def print_help(self):
@@ -42,28 +42,28 @@ class CLI:
         if not a:
             print("Agent not found by that short id.")
             return
-        self.selected_uuid = a.info.uuid
+        self.selected_id = a.info.id
         print(f"Selected agent {a.short} ({a.info.hostname})")
 
     def show_selected_info(self):
-        if not self.selected_uuid:
+        if not self.selected_id:
             print("No agent selected.")
             return
-        a = self.reg.get(self.selected_uuid)
+        a = self.reg.get(self.selected_id)
         if not a:
             print("Selected agent disconnected.")
-            self.selected_uuid = None
+            self.selected_id = None
             return
         print(json.dumps(a.info.summary(), indent=2, ensure_ascii=False))
 
     def send_command(self, cmd: str):
-        if not self.selected_uuid:
+        if not self.selected_id:
             print("No agent selected.")
             return
-        a = self.reg.get(self.selected_uuid)
+        a = self.reg.get(self.selected_id)
         if not a:
             print("Selected agent disconnected.")
-            self.selected_uuid = None
+            self.selected_id = None
             return
         payload = exec_request(cmd)
         try:
@@ -122,7 +122,7 @@ class CLI:
         a = self.reg.get_by_short_prefix(short_prefix)
         if not a:
             print("Agent not found by that short id."); return
-        self.selected_uuid = a.info.uuid
+        self.selected_id = a.info.id
         print(f"Interactive with {a.short} ({a.info.hostname}). Type ':quit' or CTRL+C to exit.")
         while True:
             try:

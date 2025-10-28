@@ -26,9 +26,9 @@ def handle_client(conn: socket.socket, addr, registry: SessionRegistry, logger):
     while str(i) in registry._by_id:
         i += 1
 
-    agent_uuid = str(i)
+    agent_id = str(i)
     info = AgentInfo(
-        uuid=agent_uuid,
+        id=agent_id,
         addr=f"{addr[0]}:{addr[1]}",
         hostname=p.get("hostname"),
         os=p.get("os"),
@@ -54,7 +54,7 @@ def handle_client(conn: socket.socket, addr, registry: SessionRegistry, logger):
         logger.exception("Connection loop error for %s: %s", entry.short, e)
     finally:
         entry.alive = False
-        registry.remove(info.uuid)
+        registry.remove(info.id)
         try: conn.close()
         except: pass
         logger.info("Cleaned up agent %s", entry.short)

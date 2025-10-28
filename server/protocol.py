@@ -9,7 +9,7 @@ TYPE_EXEC_RESULT = "exec_result"
 
 @dataclass
 class Handshake:
-    uuid: str
+    id: str
     hostname: str
     os: str
     username: str
@@ -18,7 +18,7 @@ class Handshake:
 
     def to_dict(self) -> Dict[str, Any]:
         return {"type": TYPE_HANDSHAKE, "payload": {
-            "uuid": self.uuid,
+            "id": self.id,
             "hostname": self.hostname,
             "os": self.os,
             "username": self.username,
