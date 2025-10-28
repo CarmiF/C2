@@ -18,7 +18,7 @@ A minimal, educational Command-and-Control (C2) example implemented in Python. T
 ### Run the server
 Open a terminal and run:
 ```bash
-python -m c2.server.main
+python3 -m c2.server.main
 ```
 The server listens on `0.0.0.0:9001` by default. Use the REPL to issue commands:
 - `list` — list connected agents
@@ -28,7 +28,7 @@ The server listens on `0.0.0.0:9001` by default. Use the REPL to issue commands:
 ### Run the agent (client)
 Open a second terminal and run the agent, pointing it at the server IP and port:
 ```bash
-python -m c2.agent.main --host 127.0.0.1 --port 9001
+python3 -m c2.agent.main --host 127.0.0.1 --port 9001
 ```
 Replace `127.0.0.1` and `9001` with the server address and port used in your environment.
 
