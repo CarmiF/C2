@@ -22,7 +22,6 @@ def connect_loop():
             # handshake
             info = collect()
             payload = {
-                "uuid": str(_uuid.uuid4()),
                 **info
             }
             send_message(s, make_handshake(payload))
