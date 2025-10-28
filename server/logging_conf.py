@@ -3,7 +3,7 @@ import logging
 import logging.handlers
 import sys
 
-def setup_logger(name="c2server", log_file="server.log", level=logging.DEBUG):
+def setup_logger(name="C2server", log_file="server.log", level=logging.DEBUG):
     logger = logging.getLogger(name)
     logger.setLevel(level)
 

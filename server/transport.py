@@ -3,8 +3,8 @@ import json
 import struct
 import socket
 from typing import Optional
-from c2.common.errors import ProtocolError
-from c2.server.config import RECV_BUFFER
+from C2.common.errors import ProtocolError
+from C2.server.config import RECV_BUFFER
 
 def send_message(sock: socket.socket, obj: dict) -> None:
     data = json.dumps(obj, ensure_ascii=False).encode("utf-8")

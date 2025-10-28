@@ -16,11 +16,11 @@ Open a terminal and run:
 
 Windows: 
 ```bash
-python -m c2.server.main
+python -m C2.server.main
 ```
 Linux:
 ```bash
-python3 -m c2.server.main
+python3 -m C2.server.main
 ```
 The server listens on `0.0.0.0:9001` by default. Use the REPL to issue commands:
 - `list` — list connected agents
@@ -32,11 +32,11 @@ Open a second terminal and run the agent, pointing it at the server IP and port:
 
 Windows: 
 ```bash
-python -m c2.agent.main --host 127.0.0.1 --port 9001
+python -m C2.agent.main --host 127.0.0.1 --port 9001
 ```
 Linux:
 ```bash
-python3 -m c2.agent.main --host 127.0.0.1 --port 9001
+python3 -m C2.agent.main --host 127.0.0.1 --port 9001
 ```
 Replace `127.0.0.1` and `9001` with the server address and port used in your environment.
 
@@ -52,7 +52,7 @@ Defined message types:
 - `exec_result` — sent by agent to server as a response to `exec`.
   - payload: `{ "stdout": "<stdout str>", "stderr": "<stderr str>", "code": <int> }`
 
-Length-prefix framing ensures that message boundaries are preserved regardless of TCP segmentation. The repository implements `send_message(sock, obj)` and `recv_message(sock)` helpers in `c2/server/transport.py`.
+Length-prefix framing ensures that message boundaries are preserved regardless of TCP segmentation. The repository implements `send_message(sock, obj)` and `recv_message(sock)` helpers in `C2/server/transport.py`.
 
 Security note: This implementation is intentionally minimal and lacks authentication, encryption, and hardening. Do not deploy on untrusted networks without adding TLS, strong authentication, and process isolation.
 
@@ -67,11 +67,11 @@ This repository focuses on the minimal, vital functionality. Optional or conveni
 
 ## Files of interest
 
-- `c2/server/main.py` — server entrypoint and REPL
-- `c2/server/transport.py` — framing and JSON send/receive helpers
-- `c2/server/protocol.py` — message constructors and type predicates
-- `c2/server/session.py` — in-memory registry of agents
-- `c2/agent/main.py` — agent entrypoint and main loop
-- `c2/agent/executor.py` — command execution helper
-- `c2/agent/sysinfo.py` — system information collector used in handshake
+- `C2/server/main.py` — server entrypoint and REPL
+- `C2/server/transport.py` — framing and JSON send/receive helpers
+- `C2/server/protocol.py` — message constructors and type predicates
+- `C2/server/session.py` — in-memory registry of agents
+- `C2/agent/main.py` — agent entrypoint and main loop
+- `C2/agent/executor.py` — command execution helper
+- `C2/agent/sysinfo.py` — system information collector used in handshake
 

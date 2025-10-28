@@ -3,8 +3,8 @@ from dataclasses import dataclass, field
 from queue import Queue
 from typing import Dict, Optional
 import threading
-from c2.common.models import AgentInfo
-from c2.common.utils import short_id
+from C2.common.models import AgentInfo
+from C2.common.utils import short_id
 import logging
 import os
 from datetime import datetime

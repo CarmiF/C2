@@ -1,7 +1,7 @@
 
 from typing import Optional
-from c2.server.protocol import TYPE_EXEC_RESULT
-from c2.server.session import SessionRegistry, AgentEntry
+from C2.server.protocol import TYPE_EXEC_RESULT
+from C2.server.session import SessionRegistry, AgentEntry
 
 def handle_incoming(registry: SessionRegistry, agent: AgentEntry, msg: dict, logger) -> Optional[str]:
     t = msg.get("type")

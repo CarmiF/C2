@@ -1,15 +1,15 @@
-# c2/server/main.py
+# C2/server/main.py
 import socket
 import threading
-from c2.server.config import HOST, PORT, LOGS_DIRECTORY, MAIN_LOG_FILE
-from c2.server.logging_conf import setup_logger
-from c2.server.transport import recv_message, send_message
-from c2.server.protocol import TYPE_HANDSHAKE
-from c2.server.session import SessionRegistry, AgentEntry
-from c2.server.cli import CLI
-from c2.server.handlers import handle_incoming
-from c2.common.models import AgentInfo
-from c2.server.cli_recorder import CLISessionRecorder
+from C2.server.config import HOST, PORT, LOGS_DIRECTORY, MAIN_LOG_FILE
+from C2.server.logging_conf import setup_logger
+from C2.server.transport import recv_message, send_message
+from C2.server.protocol import TYPE_HANDSHAKE
+from C2.server.session import SessionRegistry, AgentEntry
+from C2.server.cli import CLI
+from C2.server.handlers import handle_incoming
+from C2.common.models import AgentInfo
+from C2.server.cli_recorder import CLISessionRecorder
 import os
 
 def handle_client(conn: socket.socket, addr, registry: SessionRegistry, logger):
@@ -87,7 +87,7 @@ def start_server(host, port, logger, registry: SessionRegistry):
     try:
         cli.print_help()
         while cli.running:
-            prompt = "c2> "
+            prompt = "C2> "
             raw = input(prompt)  # user input is not auto-logged by the TTY
             print(f"{prompt}{raw}")  # echo so the recorder captures operator commands
             raw = raw.strip()

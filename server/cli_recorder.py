@@ -1,4 +1,4 @@
-# c2/server/cli_recorder.py
+# C2/server/cli_recorder.py
 import os
 import sys
 import time

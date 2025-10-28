@@ -3,7 +3,7 @@
 Minimal C2 agent.
 
 Usage:
-    python -m c2.agent.main --host 127.0.0.1 --port 9001
+    python -m C2.agent.main --host 127.0.0.1 --port 9001
 """
 
 import argparse
@@ -13,11 +13,11 @@ import uuid
 import sys
 from typing import Tuple
 
-from c2.server.transport import send_message, recv_message
-from c2.agent.protocol import make_handshake
-from c2.server.protocol import TYPE_EXEC, TYPE_EXEC_RESULT
-from c2.agent.executor import run_command
-from c2.agent.sysinfo import collect
+from C2.server.transport import send_message, recv_message
+from C2.agent.protocol import make_handshake
+from C2.server.protocol import TYPE_EXEC, TYPE_EXEC_RESULT
+from C2.agent.executor import run_command
+from C2.agent.sysinfo import collect
 
 RETRY_SECONDS = 3
 RECV_POLL_TIMEOUT = 0.1  # not required by the transport but left for future use

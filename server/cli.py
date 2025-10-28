@@ -2,9 +2,9 @@ import json
 import time, sys
 from queue import Empty  # ← needed for inbox.get timeouts
 
-from c2.server.session import SessionRegistry
-from c2.server.protocol import exec_request
-from c2.server.transport import send_message
+from C2.server.session import SessionRegistry
+from C2.server.protocol import exec_request
+from C2.server.transport import send_message
 
 class CLI:
     def __init__(self, registry: SessionRegistry, logger, log_file: str):
