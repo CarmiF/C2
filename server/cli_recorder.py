@@ -5,11 +5,8 @@ import time
 import threading
 import queue
 import logging
-from datetime import datetime, timezone
 from typing import Optional, TextIO
-
-SESSION_START_TIME = datetime.now().strftime("%Y%m%d_%H%M%S")
-DEFULT_BASE_DIR = "logs"
+from .config import LOGS_DIRECTORY
 
 class _WriterThread(threading.Thread):
     def __init__(self, q: "queue.Queue[str]", filepath: str, flush_interval: float = 0.5):
@@ -97,14 +94,13 @@ class CLISessionRecorder:
 
     Writes to:  base_dir/<session_name>/cli.log
     """
-    def __init__(self, base_dir: str = DEFULT_BASE_DIR, session_name: Optional[str] = SESSION_START_TIME):
+    def __init__(self, base_dir: str = LOGS_DIRECTORY):
         self.base_dir = base_dir
-        self.session_name = session_name or SESSION_START_TIME
         self._orig_stdout: Optional[TextIO] = None
         self._orig_stderr: Optional[TextIO] = None
         self._q: "queue.Queue[str]" = queue.Queue()
         self._writer: Optional[_WriterThread] = None
-        self.filepath = os.path.join(self.base_dir, self.session_name, "cli.log")
+        self.filepath = os.path.join(self.base_dir, "cli.log")
 
     def _retarget_console_handlers(self):
         """

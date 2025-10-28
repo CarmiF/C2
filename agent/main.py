@@ -8,7 +8,7 @@ from c2.server.protocol import TYPE_EXEC, TYPE_EXEC_RESULT
 
 
 SERVER_HOST = "127.0.0.1"  # change for your lab
-SERVER_PORT = 9000
+SERVER_PORT = 9001
 RETRY_SECONDS = 3
 
 from c2.agent.executor import run_command

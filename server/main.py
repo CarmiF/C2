@@ -1,7 +1,7 @@
 # c2/server/main.py
 import socket
 import threading
-from c2.server.config import HOST, PORT, LOG_FILE
+from c2.server.config import HOST, PORT, LOGS_DIRECTORY
 from c2.server.logging_conf import setup_logger
 from c2.server.transport import recv_message, send_message
 from c2.server.protocol import TYPE_HANDSHAKE
@@ -10,6 +10,7 @@ from c2.server.cli import CLI
 from c2.server.handlers import handle_incoming
 from c2.common.models import AgentInfo
 from c2.server.cli_recorder import CLISessionRecorder
+import os
 
 def handle_client(conn: socket.socket, addr, registry: SessionRegistry, logger):
     logger.info("New connection from %s:%s", addr[0], addr[1])
@@ -83,7 +84,7 @@ def start_server(host, port, logger, registry: SessionRegistry):
     t = threading.Thread(target=acceptor, args=(s, registry, logger), daemon=True)
     t.start()
 
-    cli = CLI(registry, logger, LOG_FILE)
+    cli = CLI(registry, logger, LOGS_DIRECTORY)
     try:
         cli.print_help()
         while cli.running:
@@ -134,11 +135,11 @@ def start_server(host, port, logger, registry: SessionRegistry):
         try: s.close()
         except: pass
         logger.info("Server stopped.")
-
 def main():
     # Start recorder FIRST, then create logger and registry, then run server and CLI.
     with CLISessionRecorder():
-        logger = setup_logger(log_file=LOG_FILE)
+        log_file = os.path.join(LOGS_DIRECTORY, "general_server_log")
+        logger = setup_logger(log_file = log_file) 
         registry = SessionRegistry()
         start_server(HOST, PORT, logger, registry)
 
