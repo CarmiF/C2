@@ -1,7 +1,7 @@
 # c2/server/main.py
 import socket
 import threading
-from c2.server.config import HOST, PORT, LOGS_DIRECTORY
+from c2.server.config import HOST, PORT, LOGS_DIRECTORY, MAIN_LOG_FILE
 from c2.server.logging_conf import setup_logger
 from c2.server.transport import recv_message, send_message
 from c2.server.protocol import TYPE_HANDSHAKE
@@ -83,8 +83,7 @@ def start_server(host, port, logger, registry: SessionRegistry):
 
     t = threading.Thread(target=acceptor, args=(s, registry, logger), daemon=True)
     t.start()
-
-    cli = CLI(registry, logger, LOGS_DIRECTORY)
+    cli = CLI(registry, logger, MAIN_LOG_FILE)
     try:
         cli.print_help()
         while cli.running:
@@ -138,8 +137,7 @@ def start_server(host, port, logger, registry: SessionRegistry):
 def main():
     # Start recorder FIRST, then create logger and registry, then run server and CLI.
     with CLISessionRecorder():
-        log_file = os.path.join(LOGS_DIRECTORY, "general_server_log")
-        logger = setup_logger(log_file = log_file) 
+        logger = setup_logger(log_file = MAIN_LOG_FILE) 
         registry = SessionRegistry()
         start_server(HOST, PORT, logger, registry)
 
