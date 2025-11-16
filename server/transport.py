@@ -3,7 +3,6 @@ import json
 import struct
 import socket
 from typing import Optional
-from C2.common.errors import ProtocolError
 from C2.server.config import RECV_BUFFER
 
 def send_message(sock: socket.socket, obj: dict) -> None:
